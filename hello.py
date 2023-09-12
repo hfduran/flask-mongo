@@ -1,9 +1,11 @@
 import asyncio
 import os
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, jsonify
 from flask import request
 from pymongo import MongoClient
+from bson import json_util
+from bson.objectid import ObjectId
 
 app = Flask(__name__)
 
@@ -30,37 +32,41 @@ def post_something():
     return f"Inserted {something}"
 
 
-@app.post('/students')
+@app.post("/students")
 def create_student():
     student_data = request.json
     if student_data:
         result = students_collection.insert_one(student_data)
-        return {"message": "Student created successfully", "student_id": str(result.inserted_id)}, 201
+        return {
+            "message": "Student created successfully",
+            "student_id": str(result.inserted_id),
+        }, 201
     else:
         return {"error": "Invalid data"}, 400
 
 
-@app.get('/students')
+@app.get("/students")
 def get_students():
     students = list(students_collection.find({}))
-    return {"students": students}
+    return json_util.dumps(students)
 
 
-@app.get('/students/<string:student_id>')
+@app.get("/students/<string:student_id>")
 def get_student(student_id):
-    student = students_collection.find_one({"_id": student_id})
+    student = students_collection.find_one({"_id": ObjectId(student_id)})
     if student:
-        return student
+        return json_util.dumps(student)
     else:
         return {"error": "Student not found"}, 404
 
 
-@app.put('/students/<string:student_id>')
+@app.put("/students/<string:student_id>")
 def update_student(student_id):
     student_data = request.json
     if student_data:
         result = students_collection.update_one(
-            {"_id": student_id}, {"$set": student_data})
+            {"_id": ObjectId(student_id)}, {"$set": student_data}
+        )
         if result.modified_count > 0:
             return {"message": "Student updated successfully"}
         else:
@@ -69,7 +75,7 @@ def update_student(student_id):
         return {"error": "Invalid data"}, 400
 
 
-@app.delete('/students/<string:student_id>')
+@app.delete("/students/<string:student_id>")
 def delete_student(student_id):
     result = students_collection.delete_one({"_id": student_id})
     if result.deleted_count > 0:
