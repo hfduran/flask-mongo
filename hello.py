@@ -1,11 +1,11 @@
 import asyncio
 import os
-from dotenv import load_dotenv
-from flask import Flask, jsonify
-from flask import request
-from pymongo import MongoClient
+
 from bson import json_util
 from bson.objectid import ObjectId
+from dotenv import load_dotenv
+from flask import Flask, jsonify, request
+from pymongo import MongoClient
 
 app = Flask(__name__)
 
@@ -82,3 +82,7 @@ def delete_student(student_id):
         return {"message": "Student deleted successfully"}
     else:
         return {"error": "Student not found"}, 404
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
