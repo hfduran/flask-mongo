@@ -1,6 +1,4 @@
-import asyncio
 import os
-
 from bson import json_util
 from bson.objectid import ObjectId
 from dotenv import load_dotenv
@@ -9,8 +7,10 @@ from pymongo import MongoClient
 
 app = Flask(__name__)
 
-mongo_password = os.getenv("MONGO_PASSWORD")
-uri = f"mongodb+srv://uspolis:{mongo_password}@cluster0.melr7t2.mongodb.net/?retryWrites=true&w=majority"
+uri = os.environ.get("CONN_STR")
+
+print(uri)
+# uri = f"mongodb+srv://uspolis:{mongo_password}@cluster0.melr7t2.mongodb.net/?retryWrites=true&w=majority"
 
 client = MongoClient(uri, 27017)
 
